@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Printer, Download, Home, Check } from 'lucide-react';
 
 interface FinalViewProps {
@@ -9,21 +9,30 @@ interface FinalViewProps {
 
 const FinalView: React.FC<FinalViewProps> = ({ finalImageUrl, onHome }) => {
   
+  useEffect(() => {
+    // Handler untuk otomatis reset setelah dialog print ditutup
+    const handleAfterPrint = () => {
+      console.log('Cetak selesai atau dibatalkan, kembali ke home...');
+      onHome();
+    };
+
+    window.addEventListener('afterprint', handleAfterPrint);
+    
+    return () => {
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, [onHome]);
+
   const handlePrint = () => {
     const printArea = document.getElementById('print-area');
     if (printArea) {
+      // Bersihkan dan masukkan gambar ke area cetak khusus
       printArea.innerHTML = '';
       const img = document.createElement('img');
       img.src = finalImageUrl;
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'contain';
       
       img.onload = () => {
-        /** 
-         * Memanggil window.print() yang sudah di-override di index.html.
-         * Ini akan otomatis memicu AndroidPrint.printNow() di WebView.
-         */
+        // Panggil print setelah gambar dimuat sepenuhnya di memory
         window.print();
       };
       printArea.appendChild(img);
@@ -41,9 +50,7 @@ const FinalView: React.FC<FinalViewProps> = ({ finalImageUrl, onHome }) => {
 
   return (
     <div className="flex flex-col md:flex-row h-full w-full bg-slate-900 p-2 md:p-4 gap-4 md:gap-6 relative overflow-hidden">
-        <div id="print-area" className="hidden"></div>
-
-        {/* Static Preview: Always fits inside the screen */}
+        {/* Preview untuk tampilan layar */}
         <div className="flex-1 min-h-0 flex items-center justify-center bg-slate-800/50 rounded-2xl p-2 md:p-4 shadow-inner overflow-hidden">
             <img 
                 src={finalImageUrl} 
