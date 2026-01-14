@@ -1,0 +1,7 @@
+{
+  "name": "percobaan hp android",
+  "description": "A simple, touch-friendly web photo booth application that creates vertical photo strips.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
